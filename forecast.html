@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forecast | Weather App</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="site-header">
+        <nav class="navbar">
+            <a href="index.html" class="logo">Weather App</a>
+
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="forecast.html">Forecast</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#favorites">Favorites</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="hero">
+        <h1>Weather forecast</h1>
+
+        <form id="weather-form" class="weather-form">
+            <label for="city-input">Search for a city</label>
+
+            <div class="search-row">
+                <input id="city-input"
+                type="text"
+                placeholder="Enter a city"
+                required
+                >
+
+                <button type="submit">Search</button>
+
+            </div>
+        </form>
+
+
+        <p id="status-message"></p>
+
+        <section id="weather-result" class="weather-result" aria-live="polite"></section>
+        <p>Your forecast will appear here.</p>
+        <a class="forecast-button" href="index.html">Back to home</a>
+    </main>
+
+    <script type="module" src="src/weather.js"></script>
+</body>
+</html>
