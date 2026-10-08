@@ -13,6 +13,7 @@ A lightweight weather lookup website built with HTML, CSS, and JavaScript. Users
   - Relative humidity
   - Wind speed
 - User-friendly status and error messages
+- Save favorite locations in the browser and quickly load or remove them
 - No API key required
 
 ## Project structure
@@ -61,6 +62,8 @@ live-server .
 3. The first matching location supplies latitude and longitude coordinates.
 4. Those coordinates are sent to the Open-Meteo forecast endpoint.
 5. The current weather data is rendered on the page.
+6. Select **Add to favorites** to save a location in this browser. Saved locations
+   are available in the Favorite locations list and persist between visits.
 
 The app uses these public endpoints:
 

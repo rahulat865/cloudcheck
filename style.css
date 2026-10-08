@@ -139,6 +139,64 @@ body {
     background-color: rgba(0, 0, 0, 0.35);
 }
 
+.favorite-button,
+.favorite-location,
+.remove-favorite {
+    border: 0;
+    border-radius: 6px;
+    background-color: brown;
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.favorite-button {
+    margin-top: 16px;
+    padding: 10px 16px;
+}
+
+.favorites-section {
+    width: min(100%, 400px);
+    margin: 0 auto 32px;
+    padding: 20px;
+    border-radius: 8px;
+    background-color: rgba(0, 0, 0, 0.35);
+    text-align: left;
+}
+
+.favorites-section h2 {
+    margin-bottom: 12px;
+}
+
+.favorites-list {
+    display: grid;
+    gap: 8px;
+    padding: 0;
+    list-style: none;
+}
+
+.favorite-item {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.favorite-location,
+.remove-favorite {
+    padding: 8px 12px;
+}
+
+.favorite-location {
+    flex: 1;
+    text-align: left;
+}
+
+.favorite-button:hover,
+.favorite-location:hover,
+.remove-favorite:hover {
+    background-color: #a52a2a;
+}
+
 .site-footer {
      display: flex;
     justify-content: space-between;

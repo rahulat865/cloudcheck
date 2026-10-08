@@ -2,8 +2,14 @@ const form = document.querySelector("#weather-form");
 const cityInput = document.querySelector("#city-input");
 const statusMessage = document.querySelector("#status-message");
 const weatherResult = document.querySelector("#weather-result");
+const favoritesList = document.querySelector("#favorites-list");
+const favoritesEmpty = document.querySelector("#favorites-empty");
+const FAVORITES_STORAGE_KEY = "weather-app-favorite-locations";
+let currentLocation = null;
 
 form.addEventListener("submit", handleSearch);
+favoritesList.addEventListener("click", handleFavoriteAction);
+renderFavorites();
 
 async function handleSearch(event) {
     event.preventDefault();
@@ -23,6 +29,7 @@ async function handleSearch(event) {
         const location = await findCity(city);
         const weather = await getWeather(location.latitude, location.longitude);
 
+        currentLocation = location;
         displayWeather(location, weather);
         statusMessage.textContent = "";
     } catch (error) {
@@ -99,7 +106,134 @@ function displayWeather(location, weatherData) {
     wind.textContent =
         `Wind speed: ${current.wind_speed_10m}${units.wind_speed_10m}`;
 
-    weatherResult.replaceChildren(title, temperature, conditions, humidity, wind);
+    const favoriteButton = document.createElement("button");
+    favoriteButton.type = "button";
+    favoriteButton.className = "favorite-button";
+    favoriteButton.dataset.locationId = getLocationId(location);
+    updateFavoriteButton(favoriteButton);
+    favoriteButton.addEventListener("click", () => {
+        toggleFavorite(location);
+        updateFavoriteButton(favoriteButton);
+        renderFavorites();
+    });
+
+    weatherResult.replaceChildren(
+        title,
+        temperature,
+        conditions,
+        humidity,
+        wind,
+        favoriteButton
+    );
+}
+
+function getLocationId(location) {
+    return `${location.latitude},${location.longitude}`;
+}
+
+function getFavorites() {
+    const storedFavorites = localStorage.getItem(FAVORITES_STORAGE_KEY);
+    return storedFavorites ? JSON.parse(storedFavorites) : [];
+}
+
+function saveFavorites(favorites) {
+    localStorage.setItem(FAVORITES_STORAGE_KEY, JSON.stringify(favorites));
+}
+
+function isFavorite(location) {
+    return getFavorites().some(
+        (favorite) => getLocationId(favorite) === getLocationId(location)
+    );
+}
+
+function toggleFavorite(location) {
+    const favorites = getFavorites();
+    const locationId = getLocationId(location);
+    const updatedFavorites = favorites.some(
+        (favorite) => getLocationId(favorite) === locationId
+    )
+        ? favorites.filter((favorite) => getLocationId(favorite) !== locationId)
+        : [...favorites, location];
+
+    saveFavorites(updatedFavorites);
+}
+
+function updateFavoriteButton(button) {
+    const favorite = isFavorite(currentLocation);
+    button.textContent = favorite
+        ? "Remove from favorites"
+        : "Add to favorites";
+    button.setAttribute("aria-pressed", String(favorite));
+}
+
+function renderFavorites() {
+    const favorites = getFavorites();
+    favoritesList.replaceChildren();
+    favoritesEmpty.hidden = favorites.length > 0;
+
+    favorites.forEach((favorite) => {
+        const item = document.createElement("li");
+        item.className = "favorite-item";
+
+        const loadButton = document.createElement("button");
+        loadButton.type = "button";
+        loadButton.className = "favorite-location";
+        loadButton.dataset.action = "load";
+        loadButton.dataset.locationId = getLocationId(favorite);
+        loadButton.textContent = `${favorite.name}, ${favorite.country}`;
+
+        const removeButton = document.createElement("button");
+        removeButton.type = "button";
+        removeButton.className = "remove-favorite";
+        removeButton.dataset.action = "remove";
+        removeButton.dataset.locationId = getLocationId(favorite);
+        removeButton.textContent = "Remove";
+        removeButton.setAttribute(
+            "aria-label",
+            `Remove ${favorite.name} from favorites`
+        );
+
+        item.append(loadButton, removeButton);
+        favoritesList.append(item);
+    });
+}
+
+async function handleFavoriteAction(event) {
+    const button = event.target.closest("button");
+    if (!button) {
+        return;
+    }
+
+    const favorite = getFavorites().find(
+        (location) => getLocationId(location) === button.dataset.locationId
+    );
+    if (!favorite) {
+        return;
+    }
+
+    if (button.dataset.action === "remove") {
+        toggleFavorite(favorite);
+        const weatherFavoriteButton = weatherResult.querySelector(
+            ".favorite-button"
+        );
+        if (weatherFavoriteButton) {
+            updateFavoriteButton(weatherFavoriteButton);
+        }
+        renderFavorites();
+        return;
+    }
+
+    cityInput.value = favorite.name;
+    statusMessage.textContent = "Loading favorite location...";
+    try {
+        const weather = await getWeather(favorite.latitude, favorite.longitude);
+        currentLocation = favorite;
+        displayWeather(favorite, weather);
+        statusMessage.textContent = "";
+    } catch (error) {
+        statusMessage.textContent = error.message;
+        console.error(error);
+    }
 }
 
 function getWeatherDescription(code) {
